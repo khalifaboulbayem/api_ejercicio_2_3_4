@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import com.api.ejercicio234.models.User;
 
-@Repository
+@Component
 public class UserRepository {
 
 	List<User> users = new ArrayList<User>();
@@ -24,18 +24,18 @@ public class UserRepository {
 	}
 
 	// Obtener todos los usuarios:
-	public List<User> getAll() {
+	public List<User> findAll() {
 		return this.users;
 	}
 
-	public User getById(Long id) {
+	public User findById(Long id) {
 		return this.users.stream()
 				.filter(user -> user.getId().equals(id))
 				.findAny()
 				.orElse(null);
 	}
 
-	public User add(User userModel) {
+	public User save(User userModel) {
 		users.add(userModel);
 		return userModel;
 	}
@@ -50,7 +50,7 @@ public class UserRepository {
 		return userUpdeted;
 	}
 
-	public void delete(Long id) {
+	public void deleteById(Long id) {
 		this.users.removeIf(user -> user.getId().equals(id));
 	}
 

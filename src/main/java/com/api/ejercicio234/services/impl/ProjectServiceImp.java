@@ -2,20 +2,17 @@ package com.api.ejercicio234.services.impl;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.api.ejercicio234.models.Project;
-import com.api.ejercicio234.repositories.UserRepository;
 import com.api.ejercicio234.services.ProjectService;
 
+@Service
 public class ProjectServiceImp implements ProjectService {
-
-	@Autowired
-	public UserRepository userRepository;
 
 	@Override
 	public List<Project> getAll() {
-		userRepository.getAll();
+		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -32,7 +29,7 @@ public class ProjectServiceImp implements ProjectService {
 	}
 
 	@Override
-	public Project edit(Long id) {
+	public Project edit(Long id, Project project) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -41,6 +38,12 @@ public class ProjectServiceImp implements ProjectService {
 	public void delete(Long id) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public List<Project> getAllByTagId(Long tagId) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'getAllByTagId'");
 	}
 
 }

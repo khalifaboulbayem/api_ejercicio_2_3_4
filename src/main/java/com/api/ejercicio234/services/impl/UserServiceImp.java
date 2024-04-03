@@ -19,12 +19,12 @@ public class UserServiceImp implements UserService {
 
 	@Override
 	public List<User> getAll() {
-		return userRepository.getAll();
+		return userRepository.findAll();
 	}
 
 	@Override
 	public User create(User userModel) {
-		User user = userRepository.getById(userModel.getId());
+		User user = userRepository.findById(userModel.getId());
 		if (user != null) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT,
 					"El usuario con el Id " + user.getId() + "Ya existe");
@@ -33,7 +33,7 @@ public class UserServiceImp implements UserService {
 		if (userModel.getNick().isBlank()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nick de usuario es requerido");
 		}
-		return userRepository.add(userModel);
+		return userRepository.save(userModel);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class UserServiceImp implements UserService {
 		if (id == null) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Id no debe ser nulo");
 		}
-		User user = userRepository.getById(id);
+		User user = userRepository.findById(id);
 		if (user == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El usuario con el id " + id + " no existe");
 		}
@@ -58,7 +58,7 @@ public class UserServiceImp implements UserService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nick de usuario es requerido");
 		}
 
-		User user = userRepository.getById(id);
+		User user = userRepository.findById(id);
 
 		if (user == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No hay ningun usuario con el ID:  " + id);
@@ -74,11 +74,11 @@ public class UserServiceImp implements UserService {
 		if (id == null) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Id no debe ser nulo");
 		}
-		User user = userRepository.getById(id);
+		User user = userRepository.findById(id);
 		if (user == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El usuario con el id " + id + " no existe");
 		}
-		userRepository.delete(id);
+		userRepository.deleteById(id);
 	}
 
 }

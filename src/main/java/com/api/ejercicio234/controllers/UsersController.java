@@ -66,7 +66,7 @@ public class UsersController {
 			@ApiResponse(responseCode = "400", description = "¡El id es invalidos!"),
 			@ApiResponse(responseCode = "404", description = "No se ha encontado el usuario") })
 	public ResponseEntity<Void> remove(
-			@Parameter(description = "Id of message to delete", required = true) @PathVariable Long id) {
+			@Parameter(description = "Id del usuario a borrar", required = true) @PathVariable Long id) {
 		userService.delete(id);
 		return ResponseEntity.ok().build();
 	}
