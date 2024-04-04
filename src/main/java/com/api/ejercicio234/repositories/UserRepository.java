@@ -16,10 +16,12 @@ public class UserRepository {
 
 	public UserRepository() {
 		this.users = Stream.of(
-				new User(1L, "nick 1", "name 1"),
-				new User(2L, "nick 2", "name 2"),
-				new User(3L, "nick 2", "name 3"),
-				new User(4L, "nick 3", "name 4"))
+				new User(1L, "khalifa@email.com", "khalifa", "khalifa",
+						"$2a$10$HcUWbwp0b7gunMbQHCBehOwv6/nBNfEHi7Hvl26iyrLp7z4FKZWwW"),
+				new User(2L, "khalifa2@email.com", "khalifa2", "khalifa",
+						"$2a$10$HcUWbwp0b7gunMbQHCBehOwv6/nBNfEHi7Hvl26iyrLp7z4FKZWwW"),
+				new User(3L, "khalifa2@email.com", "khalifa3", "khalifa",
+						"$2a$10$HcUWbwp0b7gunMbQHCBehOwv6/nBNfEHi7Hvl26iyrLp7z4FKZWwW"))
 				.collect(Collectors.toList());
 	}
 
@@ -52,6 +54,13 @@ public class UserRepository {
 
 	public void deleteById(Long id) {
 		this.users.removeIf(user -> user.getId().equals(id));
+	}
+
+	public User findByNick(String nickname) {
+		return this.users.stream()
+				.filter(user -> user.getNick().equals(nickname))
+				.findAny()
+				.orElse(null);
 	}
 
 }

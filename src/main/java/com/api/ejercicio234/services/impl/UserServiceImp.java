@@ -1,9 +1,13 @@
 package com.api.ejercicio234.services.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -12,7 +16,7 @@ import com.api.ejercicio234.repositories.UserRepository;
 import com.api.ejercicio234.services.UserService;
 
 @Service
-public class UserServiceImp implements UserService {
+public class UserServiceImp implements UserService, UserDetailsService {
 
 	@Autowired
 	public UserRepository userRepository;
@@ -79,6 +83,24 @@ public class UserServiceImp implements UserService {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El usuario con el id " + id + " no existe");
 		}
 		userRepository.deleteById(id);
+	}
+
+	@Override
+	public Optional<User> findByNick(String nickname) {
+		if (nickname == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Id no debe ser nulo");
+		}
+		return Optional.ofNullable(userRepository.findByNick(nickname));
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		User user = userRepository.findByNick(username);
+		if (user == null) {
+			throw new UsernameNotFoundException("El usuario con el nick " + username + " no existe");
+		}
+		return new org.springframework.security.core.userdetails.User(
+				user.getNick(), user.getPassword(), true, true, true, true, null);
 	}
 
 }
