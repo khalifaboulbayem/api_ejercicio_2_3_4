@@ -7,31 +7,29 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.api.ejercicio234.config.filters.JwtAuthenticationFilter;
+import com.api.ejercicio234.config.filters.JwtAuthorizationFilter;
 import com.api.ejercicio234.config.jwt.JwtUtils;
-import com.api.ejercicio234.services.impl.UserServiceImp;
+import com.api.ejercicio234.services.impl.UserDetailsServiceImp;
 
 @Configuration
 // @EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
-    private UserServiceImp userService;
+    private UserDetailsServiceImp userService;
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    JwtAuthorizationFilter jwtAuthorizationFilter;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity httpSecurity, AuthenticationManager authenticationManager)
@@ -44,16 +42,14 @@ public class SecurityConfig {
                 .cors(config -> config.disable())
                 .authorizeHttpRequests(requests -> {
                     requests.requestMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll();
-                    requests.requestMatchers("/login").permitAll();
-                    requests.requestMatchers("/auth/**").permitAll();
                     requests.anyRequest().authenticated();
                 })
                 .sessionManagement(session -> {
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
                 .addFilter(jwtAuthenticationFilter)
-                // .addFilterBefore(jwtAuthenticationFilter,
-                // UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthorizationFilter,
+                        UsernamePasswordAuthenticationFilter.class)
                 .build();
 
     }

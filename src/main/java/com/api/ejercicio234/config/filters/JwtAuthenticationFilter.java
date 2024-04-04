@@ -36,7 +36,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String password = "";
         try {
             userEntity = new ObjectMapper().readValue(request.getInputStream(), com.api.ejercicio234.models.User.class);
-            username = userEntity.getNick();
+            username = userEntity.getUsername();
             password = userEntity.getPassword();
 
         } catch (Exception e) {

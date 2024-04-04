@@ -16,7 +16,7 @@ import com.api.ejercicio234.repositories.UserRepository;
 import com.api.ejercicio234.services.UserService;
 
 @Service
-public class UserServiceImp implements UserService, UserDetailsService {
+public class UserServiceImp implements UserService {
 
 	@Autowired
 	public UserRepository userRepository;
@@ -34,7 +34,7 @@ public class UserServiceImp implements UserService, UserDetailsService {
 					"El usuario con el Id " + user.getId() + "Ya existe");
 		}
 
-		if (userModel.getNick().isBlank()) {
+		if (userModel.getUsername().isBlank()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nick de usuario es requerido");
 		}
 		return userRepository.save(userModel);
@@ -58,7 +58,7 @@ public class UserServiceImp implements UserService, UserDetailsService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Id no debe ser nulo");
 		}
 
-		if (userRequest.getNick().isBlank()) {
+		if (userRequest.getUsername().isBlank()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nick de usuario es requerido");
 		}
 
@@ -90,17 +90,7 @@ public class UserServiceImp implements UserService, UserDetailsService {
 		if (nickname == null) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Id no debe ser nulo");
 		}
-		return Optional.ofNullable(userRepository.findByNick(nickname));
-	}
-
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepository.findByNick(username);
-		if (user == null) {
-			throw new UsernameNotFoundException("El usuario con el nick " + username + " no existe");
-		}
-		return new org.springframework.security.core.userdetails.User(
-				user.getNick(), user.getPassword(), true, true, true, true, null);
+		return userRepository.findByUsername(nickname);
 	}
 
 }

@@ -21,8 +21,7 @@ public class User {
 
 	@NotBlank
 	@Size(min = 0, max = 30)
-	private String nick;
-	private String name;
+	private String username;
 
 	@NotBlank
 	private String password;

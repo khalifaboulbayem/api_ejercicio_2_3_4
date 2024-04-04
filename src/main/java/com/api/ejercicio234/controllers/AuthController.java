@@ -31,10 +31,9 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody UserDto request) {
         User user = User.builder()
                 .id(request.getId())
-                .nick(request.getNick())
+                .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
-                .name(request.getName())
                 .build();
         userService.create(user);
         return ResponseEntity.ok(user);
