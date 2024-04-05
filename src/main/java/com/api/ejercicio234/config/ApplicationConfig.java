@@ -1,5 +1,7 @@
 package com.api.ejercicio234.config;
 
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,10 +9,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import com.api.ejercicio234.repositories.UserRepository;
 
@@ -19,9 +23,6 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -42,18 +43,13 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado!"));
-
+    UserDetailsService userDetailsService() {
         // para usar usuario en memoria
-        /*
-         * UserDetails user = User.builder()
-         * .username("khalifa")
-         * .password(passwordEncoder().encode("123"))
-         * .authorities(Collections.emptyList())
-         * .build();
-         * return new InMemoryUserDetailsManager(user);
-         */
+        UserDetails user = User.builder()
+                .username("khalifa")
+                .password(passwordEncoder().encode("123"))
+                .authorities(Collections.emptyList())
+                .build();
+        return new InMemoryUserDetailsManager(user);
     }
 }

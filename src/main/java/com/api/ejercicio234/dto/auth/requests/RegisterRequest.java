@@ -1,4 +1,4 @@
-package com.api.ejercicio234.dto.responses;
+package com.api.ejercicio234.dto.auth.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthResponse {
-    String token;
+public class RegisterRequest {
+    String username;
+    String email;
+    String password;
 }
