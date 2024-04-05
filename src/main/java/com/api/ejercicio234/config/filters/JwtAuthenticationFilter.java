@@ -1,72 +1,78 @@
 package com.api.ejercicio234.config.filters;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.api.ejercicio234.config.jwt.JwtUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.api.ejercicio234.config.jwt.JwtService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
-public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+@Component
+@RequiredArgsConstructor
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private JwtUtils jwtUtils;
+    @Autowired
+    private JwtService jwtService;
 
-    public JwtAuthenticationFilter(JwtUtils jwtUtils) {
-        this.jwtUtils = jwtUtils;
-    }
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException {
-        com.api.ejercicio234.models.User userEntity = null;
-        String username = "";
-        String password = "";
-        try {
-            userEntity = new ObjectMapper().readValue(request.getInputStream(), com.api.ejercicio234.models.User.class);
-            username = userEntity.getUsername();
-            password = userEntity.getPassword();
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        final String token = getTokenFromRequest(request);
+        final String username;
+
+        if (token == null) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
-                password);
+        try {
+            username = jwtService.getUsernameFromToken(token);
 
-        return getAuthenticationManager().authenticate(authenticationToken);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                if (jwtService.isTokenValid(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
+
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
+
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error de autenticación: " + e.getMessage());
+        }
     }
 
-    @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-            Authentication authResult) throws IOException, ServletException {
+    private String getTokenFromRequest(HttpServletRequest request) {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        User user = (User) authResult.getPrincipal();
-        String token = jwtUtils.generateToken(user.getUsername());
-
-        response.addHeader("Authorization", token);
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("token", token);
-        headers.put("Message", "Autenticacion correcta!");
-        headers.put("Username", user.getUsername());
-
-        response.getWriter().write(new ObjectMapper().writeValueAsString(headers));
-        response.setStatus(HttpStatus.OK.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().flush();
-        super.successfulAuthentication(request, response, chain, authResult);
+        if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return null;
     }
-
 }

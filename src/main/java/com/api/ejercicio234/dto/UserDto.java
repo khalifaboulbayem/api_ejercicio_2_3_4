@@ -1,4 +1,4 @@
-package com.api.ejercicio234.dto.request;
+package com.api.ejercicio234.dto;
 
 import lombok.*;
 
