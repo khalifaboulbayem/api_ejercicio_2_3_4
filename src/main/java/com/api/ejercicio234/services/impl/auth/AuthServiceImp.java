@@ -33,7 +33,7 @@ public class AuthServiceImp {
                     .authenticate(
                             new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
             UserDetails user = (UserDetails) userDetailsService.loadUserByUsername(request.getUsername());
-            String token = jwtService.getToken(user);
+            String token = jwtService.generateToken(user.getUsername());
             return AuthResponse.builder()
                     .token(token)
                     .build();
